@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f3ed">
+  <meta name="description" content="Turn a handful of words into a grounded problem worth solving.">
+  <title>Something, Somewhere — Find a problem worth solving</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f5f3ed;
+      --ink: #222922;
+      --muted: #737970;
+      --line: #deded3;
+      --green: #254a39;
+      --lime: #d7ec85;
+      --orange: #df7555;
+      --serif: "Playfair Display", Georgia, serif;
+      --sans: "DM Sans", Arial, sans-serif;
+      --mono: "DM Mono", monospace;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: var(--paper); color: var(--ink); font-family: var(--sans); }
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+    .shell { max-width: 1220px; margin: auto; padding: 0 52px; }
+    header { height: 84px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--line); }
+    .brand { display:flex; align-items:center; gap:11px; font-size:16px; font-weight:700; letter-spacing:-.04em; }
+    .brand-mark { width:28px; height:28px; border-radius:50%; background:var(--green); color:var(--lime); display:grid; place-items:center; font-family:var(--serif); font-size:17px; }
+    .header-note { color:var(--muted); font-size:12px; display:flex; align-items:center; gap:9px; }
+    .pulse { width:7px; height:7px; border-radius:50%; background:#9ab54f; box-shadow:0 0 0 4px #9ab54f20; }
+    main { padding:53px 0 64px; }
+    .intro { display:grid; grid-template-columns:1fr auto; align-items:end; margin-bottom:33px; }
+    .eyebrow, .section-label { color:var(--muted); font:11px var(--mono); letter-spacing:.11em; text-transform:uppercase; }
+    h1 { font:500 clamp(42px, 5.1vw, 66px)/1.05 var(--serif); letter-spacing:-.055em; max-width:700px; margin:14px 0 0; }
+    h1 em { color:var(--green); font-weight:500; }
+    .intro-aside { padding-bottom:6px; color:var(--muted); font-size:13px; line-height:1.65; max-width:225px; }
+    .workspace { display:grid; grid-template-columns:minmax(0, 1.08fr) minmax(390px, .92fr); border:1px solid #d8d9ce; border-radius:8px; overflow:hidden; background:#faf9f5; box-shadow:0 12px 40px #323a2510; min-height:540px; }
+    .input-panel { padding:29px 32px 27px; border-right:1px solid var(--line); }
+    .panel-heading { display:flex; justify-content:space-between; align-items:center; margin-bottom:19px; }
+    .counter { color:#8d9288; font:10px var(--mono); }
+    .word-box { min-height:148px; border:1px solid #d8d9ce; background:#fffefa; border-radius:5px; padding:13px 14px; display:flex; align-content:flex-start; flex-wrap:wrap; gap:8px; cursor:text; transition:border .18s, box-shadow .18s; }
+    .word-box:focus-within { border-color:#70846a; box-shadow:0 0 0 3px #254a3910; }
+    .word-chip { display:inline-flex; align-items:center; gap:8px; padding:7px 9px; background:#edf0e5; color:#324532; border-radius:3px; font-size:13px; animation:pop .18s ease-out; }
+    .word-chip button { border:0; background:transparent; color:#71806a; cursor:pointer; padding:0; line-height:1; font-size:16px; }
+    .word-input { min-width:120px; flex:1; border:0; outline:0; background:transparent; padding:7px 2px; color:var(--ink); font-size:13px; }
+    .word-input::placeholder { color:#a3a69c; }
+    @keyframes pop { from {opacity:0;transform:translateY(3px)} to {opacity:1;transform:translateY(0)} }
+    .input-help { margin-top:10px; display:flex; justify-content:space-between; color:#898d83; font-size:11px; }
+    .examples { display:flex; align-items:center; flex-wrap:wrap; gap:7px; margin-top:15px; }
+    .examples-label { color:#8b9086; font-size:11px; margin-right:2px; }
+    .example { padding:5px 9px; color:#596357; border:1px solid #e0e1d8; border-radius:99px; background:transparent; font-size:11px; cursor:pointer; transition:.18s; }
+    .example:hover { background:#edf0e5; border-color:#c8d0bc; }
+    .divider { height:1px; background:var(--line); margin:26px 0 22px; }
+    .control-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px 14px; }
+    .field label { display:block; margin-bottom:8px; color:#62695f; font:10px var(--mono); letter-spacing:.07em; text-transform:uppercase; }
+    .select-wrap { position:relative; }
+    .select-wrap:after { content:"⌄"; position:absolute; right:12px; top:7px; pointer-events:none; color:#697267; font-size:16px; }
+    select { width:100%; height:37px; appearance:none; padding:0 30px 0 11px; border:1px solid #dcddd3; background:#fffefa; border-radius:4px; color:#414940; font-size:12px; cursor:pointer; }
+    select:focus { outline:2px solid #254a3925; border-color:#72836d; }
+    .generate { width:100%; display:flex; justify-content:space-between; align-items:center; margin-top:24px; padding:14px 16px; border:0; border-radius:4px; background:var(--green); color:white; text-align:left; cursor:pointer; font-size:13px; font-weight:600; transition:background .18s, transform .18s; }
+    .generate:hover { background:#315d47; transform:translateY(-1px); }
+    .generate:active { transform:translateY(0); }
+    .generate .arrow { color:var(--lime); font-size:19px; line-height:12px; }
+    .generate-hint { text-align:center; margin-top:10px; color:#989b91; font-size:10px; }
+    .result-panel { padding:29px 31px; display:flex; flex-direction:column; background:#f0f1e9; position:relative; overflow:hidden; }
+    .result-panel:after { content:""; position:absolute; width:280px; height:280px; border:1px solid #dfe3d5; border-radius:50%; right:-166px; bottom:-180px; box-shadow:0 0 0 24px #f0f1e9,0 0 0 25px #dfe3d5,0 0 0 50px #f0f1e9,0 0 0 51px #dfe3d5; pointer-events:none; }
+    .result-top { display:flex; justify-content:space-between; align-items:center; position:relative; z-index:1; }
+    .result-badge { display:flex; align-items:center; gap:7px; color:#62705d; font:10px var(--mono); letter-spacing:.06em; text-transform:uppercase; }
+    .result-badge span { width:6px; height:6px; border-radius:50%; background:#98ae60; }
+    .result-number { color:#9da395; font:10px var(--mono); }
+    .empty-state { position:relative; flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:25px 25px 45px; z-index:1; }
+    .spark { width:58px; height:58px; border:1px solid #d4dac9; border-radius:50%; display:grid; place-items:center; color:var(--green); font:26px var(--serif); margin-bottom:24px; background:#f5f6f0; }
+    .empty-state h2 { font:500 27px/1.15 var(--serif); letter-spacing:-.035em; margin:0 0 10px; }
+    .empty-state p { max-width:245px; margin:0; color:#777e72; font-size:12px; line-height:1.7; }
+    .result-content { display:none; flex:1; flex-direction:column; padding-top:55px; position:relative; z-index:1; animation:fade .35s ease-out; }
+    @keyframes fade { from {opacity:0;transform:translateY(8px)} to {opacity:1;transform:translateY(0)} }
+    .result-category { color:#708264; font:10px var(--mono); letter-spacing:.1em; text-transform:uppercase; margin-bottom:13px; }
+    .result-title { font:500 clamp(29px,3vw,38px)/1.13 var(--serif); letter-spacing:-.04em; margin:0 0 21px; max-width:440px; }
+    .brief { color:#535c51; font-size:13px; line-height:1.82; margin:0; max-width:440px; }
+    .brief strong { color:#28382d; font-weight:600; }
+    .challenge { margin-top:28px; padding:16px 17px; border-left:2px solid #9aaf68; background:#e8ebdf; color:#465243; font:500 15px/1.55 var(--serif); max-width:440px; }
+    .challenge-label { display:block; color:#858c7b; font:9px var(--mono); text-transform:uppercase; letter-spacing:.1em; margin-bottom:7px; }
+    .result-footer { margin-top:auto; display:flex; justify-content:space-between; align-items:center; padding-top:24px; position:relative; z-index:1; }
+      .used-words { display:flex; gap:6px; flex-wrap:wrap; }
+      .used-word-label { flex-basis:100%; color:#858c7b; font:9px var(--mono); letter-spacing:.08em; text-transform:uppercase; }
+    .used-word { font:9px var(--mono); color:#74806c; padding:5px 7px; border:1px solid #d6dacd; border-radius:2px; }
+    .again { border:0; background:transparent; color:var(--green); font-size:11px; font-weight:600; cursor:pointer; padding:8px 0 8px 8px; }
+    .again:hover { color:#60834c; }
+    .toast { position:fixed; left:50%; bottom:25px; transform:translate(-50%,12px); opacity:0; pointer-events:none; background:#263d30; color:#fff; padding:10px 15px; border-radius:4px; font-size:12px; transition:.2s; z-index:3; }
+    .toast.show { opacity:1; transform:translate(-50%,0); }
+    @media (max-width:850px) { .shell{padding:0 27px}.workspace{grid-template-columns:1fr;}.input-panel{border-right:0;border-bottom:1px solid var(--line)}.result-panel{min-height:460px}.intro-aside{max-width:185px} }
+    @media (max-width:560px) { .shell{padding:0 18px}header{height:68px}.header-note{font-size:10px}main{padding:39px 0}.intro{grid-template-columns:1fr;gap:13px;margin-bottom:25px}h1{font-size:47px}.intro-aside{max-width:300px}.input-panel,.result-panel{padding:23px 20px}.workspace{min-height:0}.result-panel{min-height:460px}.control-grid{gap:15px 10px}.result-content{padding-top:42px} }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="brand"><span class="brand-mark">s</span> something, somewhere</div>
+      <div class="header-note"><span class="pulse"></span> A small tool for big beginnings</div>
+    </header>
+    <main>
+      <section class="intro" aria-labelledby="page-title">
+        <div>
+          <div class="eyebrow">The idea-finding machine · no. 001</div>
+          <h1 id="page-title">Start with anything.<br><em>Find something real.</em></h1>
+        </div>
+        <div class="intro-aside">A few stray words are enough. We’ll find the human problem hiding in the mix.</div>
+      </section>
+      <section class="workspace" aria-label="Problem idea generator">
+        <div class="input-panel">
+          <div class="panel-heading"><div class="section-label">Your ingredients</div><div class="counter" id="counter">0 / 12 words</div></div>
+          <div class="word-box" id="wordBox" role="group" aria-label="Words to combine">
+            <div id="chips" style="display:contents"></div>
+            <input id="wordInput" class="word-input" type="text" autocomplete="off" aria-label="Add a word" placeholder="Type a word, press enter…">
+          </div>
+          <div class="input-help"><span>Any words. Any order.</span><span>Press enter or comma ↵</span></div>
+          <div class="examples"><span class="examples-label">Try:</span>
+            <button class="example" data-words="plants, night shifts, neighbors">plants · night shifts · neighbors</button>
+            <button class="example" data-words="leftovers, travel, tiny kitchens">leftovers · travel · tiny kitchens</button>
+            <button class="example" data-words="freelancers, invoices, Friday">freelancers · invoices · Friday</button>
+          </div>
+          <div class="divider"></div>
+          <div class="control-grid">
+            <div class="field"><label for="audience">Who is it for?</label><div class="select-wrap"><select id="audience"><option value="surprise">Surprise me</option><option value="students">Students</option><option value="parents">Parents & caregivers</option><option value="small-businesses">Small business owners</option><option value="remote-workers">Remote workers</option><option value="communities">Local communities</option><option value="creators">Independent creators</option></select></div></div>
+            <div class="field"><label for="difficulty">Challenge level</label><div class="select-wrap"><select id="difficulty"><option value="everyday">Everyday friction</option><option value="stretch">A bit of a stretch</option><option value="ambitious">Big, messy challenge</option></select></div></div>
+            <div class="field"><label for="category">Problem space</label><div class="select-wrap"><select id="category"><option value="surprise">Surprise me</option><option value="daily-life">Daily life</option><option value="work">Work & money</option><option value="community">Community</option><option value="wellbeing">Wellbeing</option><option value="sustainability">Sustainability</option></select></div></div>
+            <div class="field"><label for="scope">Where it happens</label><div class="select-wrap"><select id="scope"><option value="either">Anywhere</option><option value="personal">At home or solo</option><option value="shared">With other people</option></select></div></div>
+          </div>
+          <button class="generate" id="generate"><span>Find me a real problem</span><span class="arrow">↗</span></button>
+          <div class="generate-hint">No right answers. Just interesting starting points.</div>
+        </div>
+        <div class="result-panel" aria-live="polite" aria-atomic="true">
+          <div class="result-top"><div class="result-badge"><span></span> Your problem brief</div><div class="result-number" id="resultNumber">READY WHEN YOU ARE</div></div>
+          <div class="empty-state" id="emptyState"><div class="spark">✳</div><h2 id="emptyTitle">There’s a problem<br>in there somewhere.</h2><p id="emptyMessage">Add a few words and we’ll turn them into a person, a moment, and something that needs fixing.</p></div>
+          <div class="result-content" id="resultContent">
+            <div class="result-category" id="resultCategory"></div>
+            <h2 class="result-title" id="resultTitle"></h2>
+            <p class="brief" id="brief"></p>
+            <div class="challenge"><span class="challenge-label">Your challenge</span><span id="challenge"></span></div>
+              <div class="result-footer"><div class="used-words" id="usedWords"></div><button class="again" id="again">Another one ↗</button></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <script>
+    (() => {
+      const MAX_WORDS = 12;
+      const words = [];
+      const $ = (id) => document.getElementById(id);
+      const input = $('wordInput');
+      const chips = $('chips');
+      const toast = $('toast');
+      let toastTimer;
+      let generation = 0;
+
+      const scenarios = [
+        {id:'glasses',category:'daily-life',audiences:['students','parents','remote-workers','creators'],scope:'personal',tags:['spectacles','glasses','eyeglasses','vision','optician','prescription'],title:'When the small things are hard to see',person:'People who rely on glasses',situation:'Their glasses get misplaced, smudged, or damaged during an ordinary day.',problem:'Without a reliable backup or a convenient repair option, even a minor problem can make reading, commuting, or working difficult.',challenge:'How might you make it easier for people to see clearly when their glasses are unavailable?',difficulty:'everyday'},
+        {id:'plants',category:'sustainability',audiences:['students','parents','remote-workers','communities'],scope:'either',tags:['plant','plants','garden','gardening','water','watering','balcony','seed'],title:'Keeping plants alive through a busy week',person:'People growing plants at home or in a shared garden',situation:'Their watering routine is easy to forget when work, travel, or changing weather disrupts the week.',problem:'They often notice a plant is struggling only after it has already wilted, while neighbors may have spare supplies or experience.',challenge:'How might you help people care for plants more reliably and share useful help nearby?',difficulty:'everyday'},
+        {id:'night-shifts',category:'work',audiences:['small-businesses','remote-workers','students'],scope:'shared',tags:['night shift','night shifts','shift','shifts','schedule','schedules','sleep','worker','workers'],title:'The handoff after a night shift',person:'Workers whose schedules do not overlap with their teammates',situation:'Important updates are passed along at the end of a tiring shift, often through rushed notes or messages.',problem:'The next person can miss a change, repeat work, or start without knowing what needs attention.',challenge:'How might you make shift handoffs clear and dependable when teammates rarely meet?',difficulty:'stretch'},
+        {id:'neighbors',category:'community',audiences:['communities','parents','students'],scope:'shared',tags:['neighbor','neighbors','community','local','shared','help','volunteer','borrow','lend'],title:'When neighbors want to help but cannot connect',person:'Neighbors who are willing to share time, skills, or useful items',situation:'Someone nearby needs a hand, but there is no clear way to ask or know who is available.',problem:'Requests get missed, offers go unused, and people fall back on buying or solving things alone.',challenge:'How might you help neighbors exchange support in a way that feels easy and trustworthy?',difficulty:'stretch'},
+        {id:'leftovers',category:'sustainability',audiences:['students','parents','small-businesses'],scope:'personal',tags:['leftover','leftovers','food','meal','meals','kitchen','groceries','restaurant','cooking'],title:'Good food getting forgotten',person:'People planning meals around a busy schedule',situation:'Food gets pushed to the back of the fridge while plans change and ingredients are bought more than once.',problem:'They discover usable food too late, waste money, and have to improvise another meal.',challenge:'How might you help people notice and use the food they already have?',difficulty:'everyday'},
+        {id:'tiny-kitchens',category:'daily-life',audiences:['students','parents','small-businesses'],scope:'personal',tags:['tiny kitchen','tiny kitchens','kitchen','small apartment','apartment','cooking','meal','meals','space'],title:'Making a small kitchen work harder',person:'People cooking in a compact shared or rented kitchen',situation:'Limited counter space and storage make even simple meal preparation awkward.',problem:'Items are hard to find, multiple people get in each other’s way, and cleanup takes longer than expected.',challenge:'How might you make everyday cooking easier when space and storage are limited?',difficulty:'stretch'},
+        {id:'freelancers',category:'work',audiences:['creators','small-businesses','remote-workers'],scope:'personal',tags:['freelancer','freelancers','freelance','independent','creator','creators','client','clients','contractor'],title:'The invisible admin around freelance work',person:'Freelancers balancing client work with running their own business',situation:'They switch between projects, messages, proposals, and payment follow-ups throughout the week.',problem:'Administrative tasks slip through the cracks, making income less predictable and focused work harder to protect.',challenge:'How might you help freelancers stay on top of the work around their work?',difficulty:'stretch'},
+        {id:'invoices',category:'work',audiences:['creators','small-businesses','remote-workers'],scope:'personal',tags:['invoice','invoices','payment','payments','freelance','freelancer','client','clients','business','money'],title:'Getting paid without the awkward chase',person:'Independent workers waiting on client payments',situation:'A finished project is delivered, but the invoice or payment status is easy to lose track of.',problem:'Unclear due dates and uncomfortable follow-ups make cash flow difficult to plan around.',challenge:'How might you make payment status and next steps clear for independent workers and their clients?',difficulty:'everyday'},
+        {id:'friday',category:'work',audiences:['students','creators','small-businesses','remote-workers'],scope:'either',tags:['friday','deadline','deadlines','week','weekly','work','schedule','planning'],title:'The Friday pile-up',person:'People whose week ends with unfinished tasks and loose ends',situation:'Small decisions and follow-ups accumulate until the last workday, when everyone is trying to wrap up.',problem:'It becomes hard to tell what truly needs attention now and what can wait until next week.',challenge:'How might you help people close out the week with fewer surprises and less last-minute pressure?',difficulty:'everyday'},
+        {id:'students',category:'daily-life',audiences:['students'],scope:'either',tags:['student','students','school','campus','class','classes','study','studying','homework','exam'],title:'Finding a study rhythm that survives the week',person:'Students balancing coursework with jobs, commuting, or family responsibilities',situation:'Their available study time changes from day to day, while assignments and deadlines keep moving closer.',problem:'It is difficult to see what needs attention first, so important work gets pushed into stressful late nights.',challenge:'How might you help students make progress when their schedules keep changing?',difficulty:'stretch'},
+        {id:'care',category:'wellbeing',audiences:['parents','communities','students'],scope:'shared',tags:['care','caregiver','caregivers','health','appointment','appointments','family','support','doctor'],title:'Coordinating care across a busy family',person:'Families sharing responsibility for a relative’s care',situation:'Appointments, instructions, and everyday observations are split across several people.',problem:'A small update can fail to reach the person who needs it, leaving everyone uncertain about what has been handled.',challenge:'How might you help families stay coordinated while respecting everyone’s time and privacy?',difficulty:'ambitious'},
+        {id:'remote-team',category:'work',audiences:['remote-workers','creators','small-businesses'],scope:'shared',tags:['remote','team','teams','timezone','time zones','meeting','meetings','work','collaboration'],title:'Keeping distributed work from going quiet',person:'Small teams working remotely across different schedules',situation:'People need answers or decisions while teammates are offline or focused elsewhere.',problem:'Work stalls, conversations fragment across channels, and the same context has to be explained more than once.',challenge:'How might you help a distributed team make progress without requiring everyone to be online together?',difficulty:'stretch'},
+        {id:'commute',category:'daily-life',audiences:['students','remote-workers','small-businesses'],scope:'either',tags:['commute','commuting','travel','bus','train','transit','bike','cycling','traffic'],title:'A commute that keeps changing',person:'People who depend on public transport or shared routes to get where they need to go',situation:'Delays or route changes happen just as they are trying to reach work, school, or an appointment.',problem:'Reliable updates are difficult to find quickly, making it hard to choose a useful alternative in time.',challenge:'How might you help commuters make confident decisions when their route changes?',difficulty:'stretch'},
+        {id:'spectacle-fallback',category:'daily-life',audiences:['students','parents','remote-workers','creators'],scope:'personal',tags:[],title:'Finding important everyday items when they go missing',person:'People trying to get out the door on a busy morning',situation:'Small essentials are put down in different places as routines change from day to day.',problem:'Time is lost searching, and the rush can turn a minor inconvenience into a late start.',challenge:'How might you make everyday essentials easier to find when someone needs to leave?',difficulty:'everyday'},
+        {id:'home-routine',category:'daily-life',audiences:['students','parents','remote-workers','creators'],scope:'personal',tags:[],title:'When household tasks keep slipping',person:'People sharing a home or managing one on their own',situation:'Recurring chores compete with work, rest, and other plans.',problem:'It is easy to forget what has been done or assume someone else will handle the next task.',challenge:'How might you make household routines feel fairer and easier to keep up with?',difficulty:'everyday'},
+        {id:'small-business',category:'work',audiences:['small-businesses','creators'],scope:'either',tags:[],title:'Keeping a small business one step ahead',person:'Owners of small businesses who handle both customer work and day-to-day operations',situation:'A steady stream of small tasks arrives while they are serving customers or delivering the work.',problem:'Follow-ups and planning get postponed until they become urgent, leaving little time to improve the business.',challenge:'How might you help a small business owner stay ahead of important tasks without adding more overhead?',difficulty:'stretch'},
+        {id:'community-space',category:'community',audiences:['communities','parents','students'],scope:'shared',tags:[],title:'Making shared spaces work for everyone',person:'People who rely on a shared neighborhood space',situation:'Different groups use the same place at different times and have different expectations for it.',problem:'Needs go unspoken, maintenance gets delayed, and people are unsure how to raise concerns constructively.',challenge:'How might you help people coordinate care of a shared space and feel heard?',difficulty:'ambitious'},
+        {id:'wellbeing-routine',category:'wellbeing',audiences:['students','parents','remote-workers','creators'],scope:'personal',tags:[],title:'A healthy routine that fits real life',person:'People trying to maintain a wellbeing routine around changing schedules',situation:'A routine that works on a calm day becomes difficult when work or family demands increase.',problem:'Missing one step can make the whole routine feel too difficult to restart.',challenge:'How might you help people return to a healthy routine after an interruption?',difficulty:'everyday'},
+        {id:'reuse',category:'sustainability',audiences:['students','parents','small-businesses','communities'],scope:'either',tags:[],title:'Making reuse easier than throwing things away',person:'People with useful household items they no longer need',situation:'An item could help someone else, but finding a nearby recipient takes time and coordination.',problem:'Good items are stored or discarded because the effort to pass them on feels too high.',challenge:'How might you make it simpler for useful items to find their next owner nearby?',difficulty:'stretch'}
+      ];
+      const categoryNames = {'daily-life':'Daily life','work':'Work & money','community':'Community','wellbeing':'Wellbeing','sustainability':'Sustainability'};
+      const scenarioAngles = {
+        glasses: [
+          {title:'The repair that takes longer than it should',person:'People who depend on glasses to study, work, or travel',situation:'A loose arm or scratched lens can send them searching for an optician, comparing repair options, and rearranging their day.',problem:'It is hard to know which small repairs can be handled quickly, what they will cost, or whether a temporary fix is safe.',challenge:'How might you make trustworthy glasses repair easier to find and plan for?'},
+          {title:'A prescription that falls out of date',person:'People whose vision needs change over time',situation:'They may notice headaches or blurred text but put off booking an eye exam because they are unsure when or where to go.',problem:'Without a convenient reminder and clear next step, an outdated prescription can make routine tasks harder than they need to be.',challenge:'How might you help people keep their vision care up to date without adding hassle?'}
+        ],
+        plants: [
+          {title:'Plant care when the owner is away',person:'People who care for plants but travel or work irregular hours',situation:'A trip or a run of long days interrupts the usual watering routine.',problem:'They may have no simple way to tell a neighbor what needs attention or to return the favor later.',challenge:'How might you make plant care easier to hand off for a few days?'},
+          {title:'A shared garden with unclear responsibilities',person:'Neighbors tending a shared garden',situation:'Several people use the garden, but planting, watering, and maintenance happen informally.',problem:'Some tasks are duplicated while others are missed, and it is not clear who can use the harvest or supplies.',challenge:'How might you help a shared garden coordinate its work and resources fairly?'}
+        ],
+        'night-shifts': [
+          {title:'A schedule change nobody sees in time',person:'Workers whose shifts change from week to week',situation:'A last-minute rota update is posted while some teammates are asleep or away from their phones.',problem:'People can miss a shift change, arrive at the wrong time, or struggle to arrange transport and care.',challenge:'How might you make shift changes clear and dependable for everyone affected?'},
+          {title:'Getting a real break on an overnight shift',person:'People working overnight in small teams',situation:'Work continues while staffing is thin and the quiet hours make it difficult to coordinate cover.',problem:'Workers may skip breaks or leave a teammate unsupported because no one knows when coverage is available.',challenge:'How might you help overnight teams coordinate breaks without leaving essential work uncovered?'}
+        ],
+        neighbors: [
+          {title:'Borrowing the thing you only need once',person:'Neighbors who occasionally need a tool or household item',situation:'A small repair requires an item that will spend most of its life sitting unused.',problem:'People buy another one because they do not know who nearby might lend it or how to arrange a safe return.',challenge:'How might you make borrowing everyday items from nearby people feel simple and trustworthy?'},
+          {title:'Local help that is hard to discover',person:'Residents looking for reliable help with a small local need',situation:'A recommendation or offer of help is shared in a group chat that many neighbors never see.',problem:'Useful local knowledge gets buried, while people repeat the same search on their own.',challenge:'How might you help residents find timely, trustworthy local recommendations?'}
+        ],
+        leftovers: [
+          {title:'Knowing what needs using first',person:'People trying to stretch a grocery budget',situation:'Opened packages and fresh ingredients are stored in different places and have different use-by windows.',problem:'They cannot quickly tell what should be eaten first, so good food gets forgotten until it is too late.',challenge:'How might you help people see which ingredients need attention before planning another shop?'},
+          {title:'Meal plans that survive a change of plans',person:'People whose weekly schedules change unexpectedly',situation:'A planned meal no longer fits the evening, but its ingredients are already at home.',problem:'The ingredients may sit unused because it takes effort to find a quick alternative that uses what is on hand.',challenge:'How might you help people adapt a meal plan when the day does not go as expected?'}
+        ],
+        'tiny-kitchens': [
+          {title:'Finding a place for the things used every day',person:'People sharing a small kitchen with limited storage',situation:'The most-used pans, ingredients, and utensils compete for a few shelves and drawers.',problem:'Cooking starts with moving things around, and items are often put back wherever there is room.',challenge:'How might you help people make a small kitchen easier to use without adding storage?'},
+          {title:'Sharing one kitchen at the busiest time',person:'Housemates who cook in the same compact kitchen',situation:'Several people need the counter, stove, or sink around the same time.',problem:'They interrupt each other’s routines or delay cooking because they cannot tell when shared space will be free.',challenge:'How might you help housemates coordinate kitchen time with less friction?'}
+        ],
+        freelancers: [
+          {title:'Client feedback scattered across a project',person:'Freelancers managing several active client projects',situation:'Feedback arrives in email, chat, calls, and document comments at different times.',problem:'It becomes difficult to know which request is current, what has been agreed, and what is waiting on a reply.',challenge:'How might you help freelancers keep project decisions and next steps clear?'},
+          {title:'Protecting focused time between client requests',person:'Freelancers whose days are interrupted by client messages',situation:'Short requests arrive throughout the day and pull attention away from planned work.',problem:'Small interruptions fragment the time needed for deep work, while delayed replies can make clients uncertain.',challenge:'How might you help freelancers set clear expectations and protect focused work time?'}
+        ],
+        invoices: [
+          {title:'Knowing when an invoice needs a follow-up',person:'Independent workers with several unpaid invoices',situation:'Each client has different payment terms and sends updates through different channels.',problem:'A follow-up can be too early, too late, or forgotten, making monthly income hard to predict.',challenge:'How might you help independent workers see which payments need attention and when?'},
+          {title:'Explaining payment terms before work begins',person:'Freelancers starting projects with new clients',situation:'The project scope is clear, but due dates, deposits, and late-payment expectations are discussed informally.',problem:'Both sides can leave with different assumptions, leading to awkward conversations once the work is delivered.',challenge:'How might you help freelancers and clients agree on payment expectations before a project starts?'}
+        ],
+        friday: [
+          {title:'Handing off unfinished work before the weekend',person:'Small teams wrapping up work at the end of the week',situation:'Several tasks are in progress when people sign off at different times on Friday.',problem:'The next person back has to reconstruct what happened and decide what is urgent from incomplete notes.',challenge:'How might you make end-of-week handoffs clear without creating another lengthy status meeting?'},
+          {title:'Choosing what can wait until Monday',person:'People facing a crowded list of work at the end of the week',situation:'New requests arrive alongside tasks already postponed from earlier in the week.',problem:'It is difficult to separate a genuine deadline from work that only feels urgent, so people end the week still worrying about it.',challenge:'How might you help people make a realistic, shared plan for what happens next week?'}
+        ],
+        students: [
+          {title:'Group work when schedules never line up',person:'Students completing a project with classmates on different schedules',situation:'Each person has classes, jobs, or commutes that make a shared meeting difficult.',problem:'Decisions stall or one person carries too much of the work because the group cannot see progress between meetings.',challenge:'How might you help student teams make progress without needing everyone available at once?'},
+          {title:'Seeing deadlines before they become urgent',person:'Students managing deadlines across several classes',situation:'Assignments are announced in different courses and formats throughout the term.',problem:'A deadline can slip out of view until several large tasks collide in the same week.',challenge:'How might you help students spot workload clashes early enough to adjust their plans?'}
+        ],
+        care: [
+          {title:'Keeping everyone updated after an appointment',person:'Family members sharing care for a relative',situation:'One person attends an appointment while others help with transport, medication, or daily routines.',problem:'Important instructions may stay with the person who was there, leaving the rest of the family unsure what changed.',challenge:'How might you help families share care updates accurately while protecting private information?'},
+          {title:'Remembering the small steps in a care routine',person:'Caregivers coordinating recurring tasks across a week',situation:'Medication, appointments, and check-ins happen at different times and may be handled by different people.',problem:'It is easy to lose track of what was completed or assume another caregiver has already done it.',challenge:'How might you help caregivers coordinate recurring tasks without adding more stress?'}
+        ],
+        'remote-team': [
+          {title:'Finding the decision buried in a long thread',person:'Remote teammates making decisions across chat and documents',situation:'A question is discussed over several days while some teammates are offline.',problem:'The final decision and its reasoning are hard to find later, so people repeat the discussion or act on old information.',challenge:'How might you help distributed teams make decisions that are easy to find and understand later?'},
+          {title:'Starting work without waiting for a reply',person:'Remote workers depending on teammates in other time zones',situation:'A task reaches a point where one missing detail is needed, but the person who can answer is offline.',problem:'Work sits idle or someone makes an assumption that has to be corrected later.',challenge:'How might you help remote teammates leave enough context for work to continue asynchronously?'}
+        ],
+        commute: [
+          {title:'A delay that breaks the rest of the trip',person:'Commuters who rely on connections between buses or trains',situation:'One delayed service puts a carefully timed transfer at risk.',problem:'Updates may arrive too late to choose another route, leaving people unsure whether to wait or reroute.',challenge:'How might you help commuters make a useful next-step decision when a connection is at risk?'},
+          {title:'Planning a route that works for different needs',person:'People choosing a route with mobility, cost, or time constraints',situation:'The fastest route may include stairs, long walks, or transfers that do not work for everyone.',problem:'Route information often emphasizes travel time without making practical constraints easy to compare.',challenge:'How might you help people choose a route that fits their real needs, not just the shortest time?'}
+        ]
+      };
+      const audienceDescriptions = {
+        students:'Students balancing classes, work, and everything in between',
+        parents:'Parents and caregivers coordinating busy family routines',
+        'small-businesses':'Small business owners balancing customers and daily operations',
+        'remote-workers':'Remote workers coordinating focus, communication, and home life',
+        communities:'People in local communities sharing resources and information',
+        creators:'Independent creators balancing creative work and business tasks'
+      };
+      const audienceKeys = Object.keys(audienceDescriptions);
+      const categoryFallbacks = {
+        'daily-life':[
+          {id:'routine',title:'When a small routine keeps breaking down',situation:'Everyday essentials and small tasks are easy to forget when plans change.',problem:'People lose time retracing steps or repeating work because the next action is not clear.',challenge:'How might you make this everyday routine easier to pick up again after an interruption?'},
+          {id:'plans',title:'Making changing plans easier to manage',situation:'A schedule shifts, but the practical details are spread across messages, notes, and memory.',problem:'People miss a useful update or have to redo arrangements at the last minute.',challenge:'How might you help people keep everyday plans useful when the day changes?'},
+          {id:'maintenance',title:'Keeping useful things working longer',situation:'A small household item needs attention, but people are unsure whether to repair, replace, or ask for help.',problem:'Simple fixes get postponed until the item becomes inconvenient or unusable.',challenge:'How might you help people take the next practical step before a small issue grows?'}
+        ],
+        work:[
+          {id:'priorities',title:'Finding the next important step at work',situation:'Requests and follow-ups arrive while people are already focused on serving customers or finishing tasks.',problem:'Important work gets buried, and people spend time reconstructing what needs attention.',challenge:'How might you help people see and act on the next useful step without adding busywork?'},
+          {id:'handoffs',title:'Making work handoffs easier to follow',situation:'Work moves between people who have different schedules and different pieces of context.',problem:'Updates get missed, tasks are repeated, or someone has to interrupt a teammate to find out what happened.',challenge:'How might you make the state of shared work clear when people are not available at the same time?'},
+          {id:'admin',title:'The admin that crowds out the real work',situation:'Small operational tasks compete with the work people are actually trying to deliver.',problem:'Follow-ups and records are postponed until they become urgent or cause avoidable confusion.',challenge:'How might you make recurring work admin easier to complete at the right time?'}
+        ],
+        community:[
+          {id:'local-info',title:'Useful local information that is hard to find',situation:'Updates, recommendations, and requests are scattered across group chats, noticeboards, and word of mouth.',problem:'People miss help that is nearby while the same questions are asked repeatedly.',challenge:'How might you help people find trustworthy local information when they need it?'},
+          {id:'shared-resources',title:'Making shared resources easier to use',situation:'People share a place or resource but are unsure who is using it, what is available, or who handles upkeep.',problem:'Useful things go unused while small coordination problems discourage people from participating.',challenge:'How might you help a group coordinate a shared resource fairly and simply?'},
+          {id:'offers',title:'Connecting people who need help with people who can offer it',situation:'Someone has time, skills, or an item to share, but the people who could use it may never hear about the offer.',problem:'Potentially useful support goes unused because asking and responding are inconvenient.',challenge:'How might you make it easier for neighbors to offer and request practical help?'}
+        ],
+        wellbeing:[
+          {id:'habits',title:'A healthy habit that has to fit real life',situation:'A routine works on a calm day but becomes difficult when work, care, or other demands increase.',problem:'Missing one step can make the whole habit feel too difficult to restart.',challenge:'How might you help people return to a useful routine after a disruption?'},
+          {id:'support',title:'Finding the right support at the right moment',situation:'People know they could use help, but are unsure what kind is available or how to take the first step.',problem:'They wait until the issue feels urgent because the options and next steps are unclear.',challenge:'How might you make practical support easier to understand and reach?'},
+          {id:'rest',title:'Protecting time to rest',situation:'Small obligations and alerts fill the gaps that people hoped to use to recharge.',problem:'It becomes difficult to notice patterns or set boundaries before tiredness affects the rest of the week.',challenge:'How might you help people make room for rest without adding another demanding routine?'}
+        ],
+        sustainability:[
+          {id:'repair',title:'Repairing small electronics before replacing them',situation:'A charger, cable, or small device stops working, and people cannot quickly tell whether it is repairable or where to take it.',problem:'Unclear compatibility, cost, and repair options lead useful electronics to be replaced or discarded.',challenge:'How might you make repair and reuse the practical choice for small electronics?'},
+          {id:'food',title:'Keeping useful food from going to waste',situation:'Plans change while fresh ingredients and leftovers wait to be used.',problem:'People discover food too late or buy duplicates because they cannot easily see what they already have.',challenge:'How might you help people use available food before buying more?'},
+          {id:'reuse',title:'Helping useful things find another owner',situation:'People have household items they no longer need, while someone nearby may be looking for the same thing.',problem:'Good items are stored or thrown away because sharing or repair takes more effort than replacing them.',challenge:'How might you make it simpler for useful things to be repaired, reused, or passed along?'}
+        ]
+      };
+      const wordFamilies = [
+        {id:'devices',preferredCategory:'sustainability',words:['charger','chargers','phone','phones','mobile','laptop','laptops','cable','cables','battery','batteries','headphones','tablet','computer','camera','device','devices']},
+        {id:'food',preferredCategory:'sustainability',words:['food','meal','meals','snack','snacks','groceries','grocery','produce','ingredient','ingredients','recipe','cooking','leftover','leftovers']},
+        {id:'travel',preferredCategory:'daily-life',words:['travel','trip','commute','bus','train','flight','bike','route','traffic','transit','holiday','map','journey']},
+        {id:'places',preferredCategory:'community',words:['home','park','school','office','neighborhood','city','library','shop','store','kitchen','campus']},
+        {id:'activities',preferredCategory:'daily-life',words:['study','exercise','workout','reading','shopping','running','walking','gardening','volunteering','cleaning','meeting']}
+      ];
+      const familyFallbacks = {
+        devices: {
+          'daily-life':[
+            {id:'charge-routine',title:'When a device is not ready when it is needed',situation:'A phone or laptop runs low on power just as its owner needs it for a plan, an appointment, or a daily task.',problem:'People may not know which charger is compatible or where they can safely recharge while away from home.',challenge:'How might you make it easier to keep essential devices ready during an ordinary day?'},
+            {id:'cable-clutter',title:'Finding the right cable in a tangle',situation:'Several devices and cables share the same drawer, bag, or charging spot.',problem:'People waste time searching or try the wrong accessory because compatibility is not obvious.',challenge:'How might you make everyday charging simpler and less confusing?'}
+          ],
+          work:[
+            {id:'work-device',title:'Keeping work devices ready through the day',situation:'People rely on phones, laptops, or payment devices to stay in touch and finish tasks away from a desk.',problem:'Low batteries, missing cables, or unavailable outlets can interrupt service and delay work.',challenge:'How might you help people keep essential work devices powered without disrupting their day?'},
+            {id:'shared-chargers',title:'A shared charger that nobody can find',situation:'A small team relies on a few shared chargers and cables across rooms or shifts.',problem:'Equipment gets misplaced or incompatible accessories are used, leaving someone without a working device.',challenge:'How might you help a team keep shared charging equipment available and easy to identify?'}
+          ],
+          community:[
+            {id:'public-charging',title:'Finding a place to recharge while out',situation:'People spend time at libraries, community centers, or other shared places and sometimes need to recharge a device.',problem:'It is hard to know where outlets are available, whether they can be used, or if a compatible cable is nearby.',challenge:'How might you make public charging options easier to find and use responsibly?'},
+            {id:'shared-cables',title:'Sharing charging gear without losing it',situation:'A community space keeps a small supply of cables and chargers for visitors.',problem:'People cannot tell which accessories are compatible or whether a charger is available, so the shared supply is quickly abandoned.',challenge:'How might you help a shared space manage useful charging equipment simply?'}
+          ],
+          wellbeing:[
+            {id:'charging-routine',title:'Charging a phone without carrying it into bed',situation:'People trying to wind down often keep a phone close because it needs to charge overnight.',problem:'The device remains within reach, making it easy for alerts and late-night checking to interrupt rest.',challenge:'How might you help people set up a calmer charging routine that still keeps their phone accessible when needed?'},
+            {id:'device-breaks',title:'Taking a screen break when the device is always nearby',situation:'People use a phone or laptop for work, plans, and relaxation throughout the day.',problem:'It is difficult to notice when screen time is crowding out a break or another activity they value.',challenge:'How might you help people create intentional pauses without making their devices harder to use?'}
+          ],
+          sustainability:[
+            {id:'electronics-repair',title:'Repairing small electronics before replacing them',situation:'A charger, cable, or small device stops working, and people cannot quickly tell whether it is repairable or where to take it.',problem:'Unclear compatibility, cost, and repair options lead useful electronics to be replaced or discarded.',challenge:'How might you make repair and reuse the practical choice for small electronics?'},
+            {id:'accessory-life',title:'Making small accessories last longer',situation:'A worn cable or missing adapter can make an otherwise useful device feel obsolete.',problem:'People have trouble finding reliable replacements and often discard items that could still be used.',challenge:'How might you help people find compatible parts and extend the life of their devices?'}
+          ]
+        },
+        food: {
+          'daily-life':[{id:'meal-planning',title:'Making dinner from what is already at home',situation:'Schedules change, but ingredients and leftovers are already in the fridge or cupboard.',problem:'People choose another shop or takeaway because it takes effort to see what can be made quickly.',challenge:'How might you help people make a practical meal plan from the food they already have?'}],
+          sustainability:[{id:'food-waste',title:'Keeping food in use when plans change',situation:'Fresh food and leftovers are easy to forget when shopping and meal plans shift during the week.',problem:'Good food is wasted because people cannot quickly see what needs using first.',challenge:'How might you help people use food they already have before it goes to waste?'}],
+          community:[{id:'food-sharing',title:'Sharing extra food safely nearby',situation:'Households or small food businesses may have good food to share while someone nearby could use it.',problem:'People lack a clear, timely way to find one another and understand what is safe to take.',challenge:'How might you help a community share extra food in a useful and trustworthy way?'}],
+          wellbeing:[{id:'meal-routine',title:'Eating well on a changing schedule',situation:'Work or care responsibilities make it difficult to plan regular meals in advance.',problem:'People fall back on whatever is fastest, even when they would prefer a more nourishing option.',challenge:'How might you make a realistic meal routine easier to maintain on busy days?'}],
+          work:[{id:'food-business',title:'Keeping a small food business ahead of demand',situation:'A shop or café needs to plan ingredients while customer demand changes from day to day.',problem:'Over-ordering creates waste, while ordering too little means missed sales and last-minute substitutions.',challenge:'How might you help a small food business make better day-to-day inventory decisions?'}]
+        },
+        travel: {
+          'daily-life':[{id:'route-changes',title:'Making a route change less stressful',situation:'A delay or missed connection interrupts a trip to work, school, or an appointment.',problem:'People struggle to compare alternatives quickly and may not know whether waiting or rerouting is better.',challenge:'How might you help people choose a useful next step when travel plans change?'}],
+          work:[{id:'work-travel',title:'Coordinating travel around a changing workday',situation:'People move between meetings, customer visits, or work sites while schedules shift.',problem:'Travel details and updates are scattered, making arrivals late and changes difficult to communicate.',challenge:'How might you help people coordinate work travel when plans move during the day?'}],
+          sustainability:[{id:'lower-impact-trip',title:'Choosing a lower-impact trip that still works',situation:'People want to walk, cycle, or use transit, but route time and practical details are difficult to compare.',problem:'Uncertainty about connections, weather, or safe routes pushes people toward a more convenient but less sustainable option.',challenge:'How might you make lower-impact travel easier to plan with confidence?'}],
+          community:[{id:'local-access',title:'Making local places easier to reach',situation:'Residents need to get to services or shared activities using different routes and transport options.',problem:'Useful access information is hard to find, especially when a familiar route is disrupted.',challenge:'How might you help residents understand their practical travel options nearby?'}],
+          wellbeing:[{id:'supportive-trip',title:'Making a trip to support feel manageable',situation:'People travel to appointments, classes, or activities that support their wellbeing while balancing other demands.',problem:'Unclear route details and travel time can make it harder to keep the commitment or ask someone for help getting there.',challenge:'How might you make travel to a helpful activity feel easier to plan and follow through on?'}]
+        },
+        places: {
+          'daily-life':[{id:'daily-place',title:'Finding the place that fits the moment',situation:'People rely on nearby shops, parks, libraries, and services, but details such as opening times or access needs can change.',problem:'They often make an unnecessary trip because current, practical information is hard to check quickly.',challenge:'How might you make nearby places easier to choose and use?' }],
+          work:[{id:'work-place',title:'Finding the right place to get work done',situation:'People move between home, shared offices, customer sites, and public spaces during the week.',problem:'It is hard to know which location has the space, access, or basic facilities they need at that moment.',challenge:'How might you help people find a suitable place to work without extra searching?' }],
+          community:[{id:'community-place',title:'Making local spaces easier to discover',situation:'A neighborhood has useful public and shared spaces, but residents may not know when they are open or what they offer.',problem:'Spaces go underused while people assume there is nowhere nearby to meet, learn, or get help.',challenge:'How might you help residents discover and make better use of nearby spaces?' }],
+          wellbeing:[{id:'wellbeing-place',title:'Finding an accessible place to recharge',situation:'People may want a quiet place to walk, rest, or get support but are unsure which nearby options fit their needs.',problem:'Unclear access and facility information can turn a simple outing into a stressful guess.',challenge:'How might you make supportive local spaces easier to find and feel comfortable using?' }],
+          sustainability:[{id:'sustainable-place',title:'Making local reuse and repair easier to reach',situation:'Repair shops, refill points, donation sites, and recycling facilities may be nearby but difficult to compare.',problem:'People choose the easiest disposal option because they cannot quickly find a practical local alternative.',challenge:'How might you help people find the nearest useful option before throwing something away?' }]
+        },
+        activities: {
+          'daily-life':[{id:'daily-activity',title:'Making time for the things people mean to do',situation:'A planned activity competes with chores, messages, and changing daily commitments.',problem:'It is easy to keep postponing something important because the next small step is unclear or hard to fit in.',challenge:'How might you help people make steady progress on an activity around real-life interruptions?' }],
+          work:[{id:'work-activity',title:'Fitting focused work between interruptions',situation:'A person’s workday is broken into short gaps by requests, meetings, or customer needs.',problem:'They struggle to restart complex tasks and lose time remembering where they left off.',challenge:'How might you help people make meaningful progress when their work time comes in fragments?' }],
+          community:[{id:'community-activity',title:'Helping a group keep an activity going',situation:'People want to organize a recurring local activity, but attendance and responsibilities change week to week.',problem:'Plans depend on a few organizers and become difficult to sustain when they are busy.',challenge:'How might you help a group share the small tasks that keep a local activity running?' }],
+          wellbeing:[{id:'wellbeing-activity',title:'Keeping a wellbeing activity realistic',situation:'People start an exercise, reading, or relaxation routine with good intentions, but energy and schedules vary.',problem:'A missed session can make the whole routine feel like a failure and harder to restart.',challenge:'How might you help people return to a helpful activity without guilt or all-or-nothing pressure?' }],
+          sustainability:[{id:'sustainable-activity',title:'Making the lower-waste choice easier to repeat',situation:'People want to repair, reuse, or share items but have to fit the extra steps into an already busy day.',problem:'The sustainable option is abandoned when it is hard to know where to start or what to do next.',challenge:'How might you make a lower-waste action simple enough to become part of an ordinary routine?' }]
+        }
+      };
+      const difficultyPrompts = {
+        everyday:'Focus on a small change that could make this recurring moment easier.',
+        stretch:'Consider the workarounds and constraints around time, cost, or access.',
+        ambitious:'Consider how different needs, incentives, and longer-term effects shape the problem.'
+      };
+      const recentBriefIds = [];
+
+      function notify(message) {
+        toast.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 2100);
+      }
+      function addWord(raw) {
+        const clean = raw.trim().replace(/\s+/g, ' ').replace(/^[,;]+|[,;]+$/g, '');
+        if (!clean) return;
+        if (clean.length > 36) { notify('Keep each word or phrase under 36 characters.'); return; }
+        if (words.some(word => word.toLowerCase() === clean.toLowerCase())) { notify('That word is already in your mix.'); return; }
+        if (words.length >= MAX_WORDS) { notify('You have plenty to work with — 12 words is the limit.'); return; }
+        words.push(clean);
+        renderWords();
+      }
+      function renderWords() {
+        chips.innerHTML = '';
+        words.forEach((word, index) => {
+          const chip = document.createElement('span');
+          chip.className = 'word-chip';
+          const label = document.createElement('span'); label.textContent = word;
+          const remove = document.createElement('button'); remove.type = 'button'; remove.setAttribute('aria-label', `Remove ${word}`); remove.textContent = '×';
+          remove.addEventListener('click', () => { words.splice(index, 1); renderWords(); input.focus(); });
+          chip.append(label, remove); chips.append(chip);
+        });
+        $('counter').textContent = `${words.length} / ${MAX_WORDS} words`;
+        input.placeholder = words.length ? 'Add another…' : 'Type a word, press enter…';
+      }
+      $('wordBox').addEventListener('click', (event) => { if (event.target.id !== 'wordInput' && !event.target.closest('.word-chip')) input.focus(); });
+      input.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ',') { event.preventDefault(); addWord(input.value); input.value = ''; }
+        if (event.key === 'Backspace' && input.value === '' && words.length) { words.pop(); renderWords(); }
+      });
+      input.addEventListener('paste', (event) => {
+        const value = event.clipboardData.getData('text');
+        if (/[\n,;]/.test(value)) { event.preventDefault(); value.split(/[\n,;]+/).forEach(addWord); input.value = ''; }
+      });
+      document.querySelectorAll('.example').forEach(button => button.addEventListener('click', () => {
+        words.length = 0; input.value = ''; button.dataset.words.split(',').forEach(addWord); input.focus();
+      }));
+      $('generate').addEventListener('click', generate);
+      $('again').addEventListener('click', generate);
+      document.addEventListener('keydown', event => { if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') generate(); });
+
+      function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
+      function normalized(word) { return word.toLowerCase().replace(/[^a-z0-9]/g, ' ').trim().replace(/\s+/g, ' '); }
+      function tokenize(text) { return normalized(text).split(' ').filter(Boolean); }
+      function matchingWords(scenario) {
+        if (!scenario.tags.length) return [];
+        const tags = scenario.tags.map(normalized);
+        return words.filter(word => {
+          const phrase = normalized(word);
+          const parts = tokenize(word);
+          return tags.some(tag => phrase === tag || (tag.length >= 5 && phrase.length >= 5 && (phrase.includes(tag) || tag.includes(phrase))) || (parts.length === 1 && parts[0].length >= 5 && tag.split(' ').includes(parts[0])));
+        }).slice(0, 3);
+      }
+      function scenarioPool() {
+        return scenarios.map(scenario => ({scenario, matched: matchingWords(scenario)})).filter(item =>
+          item.matched.length > 0 && scenarioFitsSettings(item.scenario)
+        ).flatMap(item => [item.scenario, ...(scenarioAngles[item.scenario.id] || [])].map((angle, index) => ({
+          scenario: {...item.scenario, ...angle}, matched: item.matched, seedWords:item.matched, source:'matched', briefId: `${item.scenario.id}:${index}`
+        })));
+      }
+      function matchingWordFamily() {
+        const matches = wordFamilies.map(family => ({
+          family,
+          words: words.filter(word => {
+            const tokens = tokenize(word);
+            return family.words.includes(normalized(word)) || tokens.some(token => family.words.includes(token));
+          })
+        })).filter(item => item.words.length);
+        return matches.length ? pick(matches) : null;
+      }
+      function fallbackPool() {
+        const requestedCategory = $('category').value;
+        const familyMatch = matchingWordFamily();
+        const category = requestedCategory === 'surprise'
+          ? pick(familyMatch && familyFallbacks[familyMatch.family.id] ? Object.keys(familyFallbacks[familyMatch.family.id]) : Object.keys(categoryFallbacks))
+          : requestedCategory;
+        const familyId = familyMatch && familyFallbacks[familyMatch.family.id]?.[category] ? familyMatch.family.id : null;
+        const templates = familyId ? familyFallbacks[familyId][category] : categoryFallbacks[category];
+        if (!templates?.length) return [];
+        const audienceKey = $('audience').value === 'surprise' ? pick(audienceKeys) : $('audience').value;
+        const audience = audienceDescriptions[audienceKey];
+        const scope = $('scope').value;
+        const difficulty = $('difficulty').value;
+        let seedWords = familyMatch ? familyMatch.words : [...words];
+        seedWords = seedWords.sort(() => Math.random() - .5).slice(0, 3);
+        return templates.map(template => {
+          let situation = template.situation;
+          if (scope === 'personal') situation = `At home or on their own, ${situation[0].toLowerCase()}${situation.slice(1)}`;
+          if (scope === 'shared') situation = `When coordinating with other people, ${situation[0].toLowerCase()}${situation.slice(1)}`;
+          return {
+            scenario: {
+              ...template, category, person:audience, situation,
+              difficulty, scope
+            },
+            matched:[], seedWords, source:'inspiration',
+            briefId:`fallback:${category}:${familyId || 'general'}:${template.id}`
+          };
+        });
+      }
+      function scenarioFitsSettings(scenario) {
+        const category = $('category').value;
+        const audience = $('audience').value;
+        const scope = $('scope').value;
+        const difficulty = $('difficulty').value;
+        return (category === 'surprise' || scenario.category === category) &&
+          (audience === 'surprise' || scenario.audiences.includes(audience)) &&
+          (scope === 'either' || scenario.scope === 'either' || scenario.scope === scope) &&
+          (difficulty === 'ambitious' || scenario.difficulty === difficulty || (difficulty === 'stretch' && scenario.difficulty === 'ambitious'));
+      }
+      function noMatchGuidance() {
+        $('emptyMessage').textContent = 'Couldn’t build a brief with these settings. Try Problem Space and Who is it for? set to “Surprise me,” Where it Happens set to “Anywhere,” or add another word.';
+      }
+      function generate() {
+        if (input.value.trim()) { addWord(input.value); input.value = ''; }
+        if (!words.length) { notify('Add at least one word to get started.'); input.focus(); return; }
+        let candidates = scenarioPool();
+        if (!candidates.length) candidates = fallbackPool();
+          if (!candidates.length) {
+            $('emptyTitle').textContent = 'No relevant problem found.';
+            noMatchGuidance();
+            $('emptyState').style.display = 'flex';
+            $('resultContent').style.display = 'none';
+            $('resultNumber').textContent = 'NO MATCH';
+            return;
+          }
+          generation++;
+        const unseen = candidates.filter(item => !recentBriefIds.includes(item.briefId));
+        const choices = unseen.length ? unseen : candidates;
+        const selected = pick(choices);
+        const scenario = selected.scenario;
+        recentBriefIds.push(selected.briefId);
+        if (recentBriefIds.length > 30) recentBriefIds.shift();
+        const difficulty = $('difficulty').value === 'ambitious' ? 'ambitious' : $('difficulty').value === 'stretch' ? 'stretch' : scenario.difficulty;
+        $('resultCategory').textContent = `${categoryNames[scenario.category]} · ${$('difficulty').selectedOptions[0].text}`;
+        $('resultTitle').textContent = scenario.title;
+        $('brief').textContent = `${scenario.person}. ${scenario.situation} ${scenario.problem}`;
+        $('challenge').textContent = `${scenario.challenge} ${difficultyPrompts[difficulty]}`;
+        $('usedWords').innerHTML = '';
+        const label = document.createElement('span'); label.className = 'used-word-label'; label.textContent = selected.source === 'matched' ? 'Words connected to this problem' : 'Creative spark · not a direct match'; $('usedWords').append(label);
+        selected.seedWords.forEach(word => { const tag = document.createElement('span'); tag.className = 'used-word'; tag.textContent = word; $('usedWords').append(tag); });
+        $('resultNumber').textContent = `BRIEF ${String(generation).padStart(3, '0')}`;
+          $('emptyTitle').innerHTML = 'There’s a problem<br>in there somewhere.';
+            $('emptyMessage').textContent = 'Add a few words and we’ll turn them into a person, a moment, and something that needs fixing.';
+        $('emptyState').style.display = 'none';
+        $('resultContent').style.display = 'flex';
+      }
+    })();
+  </script>
+</body>
+</html>
+
